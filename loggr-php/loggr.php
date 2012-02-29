@@ -37,9 +37,9 @@ class Loggr
 					
 		ob_start();
 		var_dump(debug_backtrace());
-		$stack = str_replace("\n", "<br>", ob_get_clean());
+		$stack = nl2br(ob_get_clean());
 		
-		$data = "@html\r\n";
+		$data  = "@html\r\n";
 		$data .= "<b>MESSAGE:</b> " . $message . "<br>";
 		$data .= "<b>FILE:</b> " . $file . ", " . $line . "<br>";
 		$data .= "<b>CODE:</b> " . $code . "<br>";
@@ -71,6 +71,11 @@ class Loggr
 			->post();
 	}
 
+	/**
+	 * __get, magic function
+	 * 
+	 * For backwards compatibility
+	 */
 	public function __get($attribute) {
 		$attribute = lcfirst($attribute);
 		if(isset($this->{$attribute})) {
@@ -78,6 +83,11 @@ class Loggr
 		}
 	}
 
+	/**
+	 * __set, magic function
+	 * 
+	 * For backwards compatibility
+	 */
 	public function __set($attribute, $value) {
 		$attribute = lcfirst($attribute);
 		if(isset($this->{$attribute})) {

@@ -20,7 +20,7 @@ class Loggr_Events
 	{
 		ob_start();
 		var_dump($exception->getTrace(), 5);
-		$stack = str_replace("\t", "----", str_replace("\n", "<br>", ob_get_clean()));
+		$stack = str_replace("\t", "----", nl2br(ob_get_clean()));
 		
 		$data = "<b>MESSAGE:</b> " . $exception->getMessage() . "<br>";
 		$data .= "<b>FILE:</b> " . $exception->getFile() . ", " . $exception->getLine() . "<br>";
@@ -38,13 +38,13 @@ class Loggr_Events
 	{
 		ob_start();
 		var_dump($var);
-		$trace = str_replace("\t", "----", str_replace("\n", "<br>", ob_get_clean()));
+		$trace = str_replace("\t", "----", nl2br(ob_get_clean()));
 		
 		$data = "<pre>" . $trace . "</pre>";
 	
-		return $this->Create()
-			->Data($data)
-			->DataType(Loggr_DataType::html);
+		return $this->create()
+			->data($data)
+			->dataType(Loggr_DataType::html);
 	}
 
 	protected function backtrace()
