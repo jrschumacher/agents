@@ -2,11 +2,11 @@
 
 class Loggr
 {
-	public $Events;
+	public $events;
 	
-	function __construct($logKey, $apiKey)
+	public function __construct($logKey, $apiKey)
 	{
-		$this->Events = new Events($logKey, $apiKey);
+		$this->events = new Events($logKey, $apiKey);
 	}
 	
 	public function trapExceptions()
@@ -29,11 +29,11 @@ class Loggr
 		$data .= "<b>CODE:</b> " . $code . "<br>";
 		$data .= "<br><b>STACK TRACE:</b> " . $stack;
 		
-		$this->Events->Create()
-			->Text($message)
-			->Tags("error")
-			->Data($data)
-			->Post();
+		$this->events->create()
+			->text($message)
+			->tags("error")
+			->data($data)
+			->post();
 	}
 	
 	public function exceptionHandler($exception)
@@ -48,11 +48,26 @@ class Loggr
 		$data .= "<b>CODE:</b> " . get_class($exception) . "<br>";
 		$data .= "<br><b>STACK TRACE:</b> " . $stack;
 		
-		$this->Events->Create()
-			->Text($message)
-			->Tags("error exception")
-			->Data($data)
-			->Post();
+		$this->events->create()
+			->text($message)
+			->tags("error exception")
+			->data($data)
+			->post();
+	}
+
+
+	public function __get($attribute) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			return $this->{$attribute};
+		}
+	}
+
+	public function __set($attribute, $value) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			$this->{$attribute} = $value;
+		}
 	}
 }
 
@@ -61,18 +76,18 @@ class Events
 	private $_logKey;
 	private $_apiKey;
 
-	function __construct($logKey, $apiKey)
+	public function __construct($logKey, $apiKey)
 	{
 		$this->_logKey = $logKey;
 		$this->_apiKey = $apiKey;
 	}
 	
-	public function Create()
+	public function create()
 	{
 		return new FluentEvent($this->_logKey, $this->_apiKey);
 	}
 
-	public function CreateFromException($exception)
+	public function createFromException($exception)
 	{
 		ob_start();
 		var_dump($exception->getTrace(), 5);
@@ -83,14 +98,14 @@ class Events
 		$data .= "<b>CODE:</b> " . get_class($exception) . "<br>";
 		$data .= "<br><b>BACK TRACE:</b> " . backtrace();
 	
-		return $this->Create()
-			->Text($message)
-			->Tags("error " . get_class($exception))
-			->Data($data)
-			->DataType(DataType::html);
+		return $this->create()
+			->text($exception->getMessage())
+			->tags("error " . get_class($exception))
+			->data($data)
+			->dataType(DataType::html);
 	}
 
-	public function CreateFromVariable($var)
+	public function createFromVariable($var)
 	{
 		ob_start();
 		var_dump($var);
@@ -101,154 +116,187 @@ class Events
 		return $this->Create()
 			->Data($data)
 			->DataType(DataType::html);
-	}	
+	}
+
+	public function __call($method, $params) {
+		$method = lcfirst($method);
+		if(method_exists($this, $method)) {
+			return call_user_func_array(array($this, $method), $params);
+		}
+	}
 }
 
 class FluentEvent
 {
-	public $Event;
+	public $event;
 	
 	private $_logKey;
 	private $_apiKey;
 
-	function __construct($logKey, $apiKey)
+	public function __construct($logKey, $apiKey)
 	{
 		$this->_logKey = $logKey;
 		$this->_apiKey = $apiKey;
-		$this->Event = new Event();
+		$this->event = new Event();
 	}
 
-	public function Post()
+	public function post()
 	{
 		$client = new LogClient($this->_logKey, $this->_apiKey);
-		$client->Post($this->Event);
+		$client->post($this->event);
 		return $this;
 	}
 
-	public function Text($text)
+	public function text($text)
 	{
-		$this->Event->Text = $this->AssignWithMacro($text, $this->Event->Text);
+		$this->event->text = $this->assignWithMacro($text, $this->event->text);
 		return $this;
 	}
 
-	public function TextF()
+	public function textF()
 	{
 		$args = func_get_args();
-	    return $this->Text(vsprintf(array_shift($args), array_values($args)));
+	    return $this->text(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function AddText($text)
+	public function addText($text)
 	{
-		$this->Event->Text .= $this->AssignWithMacro($text, $this->Event->Text);
+		$this->event->text .= $this->assignWithMacro($text, $this->event->text);
 		return $this;
 	}
 
-	public function AddTextF()
+	public function addTextF()
 	{
 		$args = func_get_args();
-	    return $this->AddText(vsprintf(array_shift($args), array_values($args)));
+	    return $this->addText(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function Source($source)
+	public function source($source)
 	{
-		$this->Event->Source = $this->AssignWithMacro($source, $this->Event->Source);
+		$this->event->source = $this->assignWithMacro($source, $this->event->source);
 		return $this;
 	}
 
-	public function SourceF()
+	public function sourceF()
 	{
 		$args = func_get_args();
-	    return $this->Source(vsprintf(array_shift($args), array_values($args)));
+	    return $this->source(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function User($user)
+	public function user($user)
 	{
-		$this->Event->User = $this->AssignWithMacro($user, $this->Event->User);
+		$this->event->user = $this->assignWithMacro($user, $this->event->user);
 		return $this;
 	}
 
-	public function UserF()
+	public function userF()
 	{
 		$args = func_get_args();
-	    return $this->User(vsprintf(array_shift($args), array_values($args)));
+	    return $this->user(vsprintf(array_shift($args), array_values($args)));
 	}
 
-	public function Link($link)
+	public function link($link)
 	{
-		$this->Event->Link = $this->AssignWithMacro($link, $this->Event->Link);
+		$this->event->link = $this->assignWithMacro($link, $this->event->link);
 		return $this;
 	}
 
-	public function LinkF()
+	public function linkF()
 	{
 		$args = func_get_args();
-	    return $this->Link(vsprintf(array_shift($args), array_values($args)));
+	    return $this->link(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function Data($data)
+	public function data($data)
 	{
-		$this->Event->Data = $this->AssignWithMacro($data, $this->Event->Data);
+		$this->event->data = $this->assignWithMacro($data, $this->event->data);
 		return $this;
 	}
 
-	public function DataF()
+	public function dataF()
 	{
 		$args = func_get_args();
-	    return $this->Data(vsprintf(array_shift($args), array_values($args)));
+	    return $this->data(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function AddData($data)
+	public function addData($data)
 	{
-		$this->Event->Data .= $this->AssignWithMacro($data, $this->Event->Data);
+		$this->event->data .= $this->assignWithMacro($data, $this->event->data);
 		return $this;
 	}
 
-	public function AddDataF()
+	public function addDataF()
 	{
 		$args = func_get_args();
-	    return $this->AddData(vsprintf(array_shift($args), array_values($args)));
+	    return $this->addData(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function Value($value)
+	public function value($value)
 	{
-		$this->Event->Value = $value;
+		$this->event->value = $value;
 		return $this;
 	}
 
 	public function ValueClear()
 	{
-		$this->Event->Value = "";
+		$this->event->value = "";
 		return $this;
 	}
 
-	public function Tags($tags)
+	public function tags($tags)
 	{
-		$this->Event->Tags = $tags;
+		$this->event->tags = $tags;
 		return $this;
 	}
 
-	public function AddTags($tags)
+	public function addTags($tags)
 	{
-		$this->Event->Tags .= " " . $tags;
+		$this->event->tags .= " " . $tags;
 		return $this;
 	}
 
-	public function Geo($lat, $lon)
+	public function geo($lat, $lon)
 	{
-		$this->Event->Latitude = $lat;
-		$this->Event->Longitude = $lon;
+		$this->event->latitude = $lat;
+		$this->event->longitude = $lon;
 		return $this;
 	}
 
-	public function DataType($datatype)
+	public function dataType($datatype)
 	{
-		$this->Event->DataType = $datatype;
+		$this->event->dataType = $datatype;
 		return $this;
 	}
 
-	private function AssignWithMacro($input, $baseStr)
+	private function assignWithMacro($input, $baseStr)
 	{
 		return str_replace("$$", $baseStr, $input);
+	}
+
+	/**
+	 * Call, magic method
+	 * 
+	 * Used for backwards compatibility
+	 **/
+	public function __call($method, $params) {
+		$method = lcfirst($method);
+		if(method_exists($this, $method)) {
+			return call_user_func_array(array($this, $method), $params);
+		}
+	}
+
+	public function __get($attribute) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			return $this->{$attribute};
+		}
+	}
+
+	public function __set($attribute, $value) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			$this->{$attribute} = $value;
+		}
 	}
 }
 
@@ -260,16 +308,30 @@ class DataType
 
 class Event
 {
-	public $Text;
-	public $Source;
-	public $User;
-	public $Link;
-	public $Data;
-	public $Value;
-	public $Tags;
-	public $Latitude;
-	public $Longitude;
-	public $DataType = DataType::plaintext;
+	public $text;
+	public $source;
+	public $user;
+	public $link;
+	public $data;
+	public $value;
+	public $tags;
+	public $latitude;
+	public $longitude;
+	public $dataType = DataType::plaintext;
+
+	public function __get($attribute) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			return $this->{$attribute};
+		}
+	}
+
+	public function __set($attribute, $value) {
+		$attribute = lcfirst($attribute);
+		if(isset($this->{$attribute})) {
+			$this->{$attribute} = $value;
+		}
+	}
 }
 
 class LogClient
@@ -283,10 +345,10 @@ class LogClient
 		$this->_apiKey = $apiKey;
 	}
 
-	public function Post($event)
+	public function post($event)
 	{
 		// format data
-		$qs = $this->CreateQuerystring($event);
+		$qs = $this->createQuerystring($event);
 		$data = "apikey=" . $this->_apiKey . "&" . $qs;
 		
 		// write without waiting for a response
@@ -302,24 +364,24 @@ class LogClient
 		fclose($fp);
 	}
 	
-	public function CreateQuerystring($event)
+	public function createQuerystring($event)
 	{
 		$res = "";
-		$res .= "text=" . urlencode($event->Text);
-		if (isset($event->Source)) $res .= "&source=" . urlencode($event->Source);
-		if (isset($event->User)) $res .= "&user=" . urlencode($event->User);
-		if (isset($event->Link)) $res .= "&link=" . urlencode($event->Link);
-		if (isset($event->Value)) $res .= "&value=" . urlencode($event->Value);
-		if (isset($event->Tags)) $res .= "&tags=" . urlencode($event->Tags);
-		if (isset($event->Latitude)) $res .= "&lat=" . urlencode($event->Latitude);
-		if (isset($event->Longitude)) $res .= "&lon=" . urlencode($event->Longitude);
+		$res .= "text=" . urlencode($event->text);
+		if (isset($event->source)) $res .= "&source=" . urlencode($event->source);
+		if (isset($event->user)) $res .= "&user=" . urlencode($event->user);
+		if (isset($event->link)) $res .= "&link=" . urlencode($event->link);
+		if (isset($event->value)) $res .= "&value=" . urlencode($event->value);
+		if (isset($event->tags)) $res .= "&tags=" . urlencode($event->Tags);
+		if (isset($event->latitude)) $res .= "&lat=" . urlencode($event->latitude);
+		if (isset($event->longitude)) $res .= "&lon=" . urlencode($event->longitude);
 		
-		if (isset($event->Data))
+		if (isset($event->data))
 		{
-			if ($event->DataType == DataType::html)
-				$res .= "&data=" . "@html\r\n" . urlencode($event->Data);
+			if ($event->dataType == DataType::html)
+				$res .= "&data=" . "@html\r\n" . urlencode($event->data);
 			else
-				$res .= "&data=" . urlencode($event->Data);
+				$res .= "&data=" . urlencode($event->data);
 		}
 		
 		return $res;
@@ -367,7 +429,7 @@ function backtrace()
         }
         $output .= "<br />\n";
         $output .= "<b>file:</b> {$bt['line']} - {$bt['file']}<br />\n";
-        $output .= "<b>call:</b> {$bt['class']}{$bt['type']}{$bt['function']}($args)<br />\n";
+        $output .= "<b>call:</b> ".(isset($bt['class'])?$bt['class']:'').(isset($bt['type'])?$bt['type']:'').(isset($bt['function'])?$bt['function']:'')."($args)<br />\n";
     }
     $output .= "</div>\n";
     return $output;
