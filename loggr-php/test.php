@@ -1,8 +1,16 @@
 <?php 
+
+	//--- CONFIG ---//
+
+	$log_key = "myfirstlog";
+	$api_key = "db961642e48e48e4ab00ef60c90fa29e";
+	
+	//--- END CONFIG ---//
+
 	require_once 'loggr.php';
 	
 	// creating class for using fluent syntax
-	$loggr = new Loggr("myfirstlog", "db961642e48e48e4ab00ef60c90fa29e");
+	$loggr = new Loggr($log_key, $api_key);
 	
 	// create a simple event
 	$loggr->Events->Create()
@@ -38,10 +46,10 @@
 	}
 	
 	// alternatively you can use a non-fluent syntax
-	$client = new LogClient("myfirstlog", "db961642e48e48e4ab00ef60c90fa29e");
+	$client = Loggr::LogClient($log_key, $api_key);
 	
 	// create a simple event
-	$ev = new Event();
+	$ev = Loggr::Event();
 	$ev->Text = "Simple non-fluent event";
 	$client->Post($ev);	
 
