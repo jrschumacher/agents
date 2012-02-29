@@ -14,129 +14,134 @@ class Loggr_FluentEvent
 		$this->event = new Loggr_Event();
 	}
 
-	public function post()
+	public function &post()
 	{
 		$client = new Loggr_LogClient($this->_logKey, $this->_apiKey);
 		$client->post($this->event);
 		return $this;
 	}
 
-	public function text($text)
+	public function &text($text)
 	{
 		$this->event->text = $this->assignWithMacro($text, $this->event->text);
 		return $this;
 	}
 
-	public function textF()
+	public function &textF()
 	{
 		$args = func_get_args();
 	    return $this->text(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function addText($text)
+	public function &addText($text)
 	{
 		$this->event->text .= $this->assignWithMacro($text, $this->event->text);
 		return $this;
 	}
 
-	public function addTextF()
+	public function &addTextF()
 	{
 		$args = func_get_args();
 	    return $this->addText(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function source($source)
+	public function &source($source)
 	{
 		$this->event->source = $this->assignWithMacro($source, $this->event->source);
 		return $this;
 	}
 
-	public function sourceF()
+	public function &sourceF()
 	{
 		$args = func_get_args();
 	    return $this->source(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function user($user)
+	public function &user($user)
 	{
 		$this->event->user = $this->assignWithMacro($user, $this->event->user);
 		return $this;
 	}
 
-	public function userF()
+	public function &userF()
 	{
 		$args = func_get_args();
 	    return $this->user(vsprintf(array_shift($args), array_values($args)));
 	}
 
-	public function link($link)
+	public function &link($link)
 	{
 		$this->event->link = $this->assignWithMacro($link, $this->event->link);
 		return $this;
 	}
 
-	public function linkF()
+	public function &linkF()
 	{
 		$args = func_get_args();
 	    return $this->link(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function data($data)
+	public function &data($data)
 	{
 		$this->event->data = $this->assignWithMacro($data, $this->event->data);
 		return $this;
 	}
 
-	public function dataF()
+	public function &dataF()
 	{
 		$args = func_get_args();
 	    return $this->data(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function addData($data)
+	public function &addData($data)
 	{
 		$this->event->data .= $this->assignWithMacro($data, $this->event->data);
 		return $this;
 	}
 
-	public function addDataF()
+	public function &addDataF()
 	{
 		$args = func_get_args();
 	    return $this->addData(vsprintf(array_shift($args), array_values($args)));
 	}
 	
-	public function value($value)
+	public function &value($value)
 	{
 		$this->event->value = $value;
 		return $this;
 	}
 
-	public function ValueClear()
+	public function &valueClear()
 	{
 		$this->event->value = "";
 		return $this;
 	}
 
-	public function tags($tags)
+	public function &tags($tags)
 	{
 		$this->event->tags = $tags;
 		return $this;
 	}
 
-	public function addTags($tags)
+	public function &addTags($tags)
 	{
 		$this->event->tags .= " " . $tags;
 		return $this;
 	}
 
-	public function geo($lat, $lon)
+	public function &geo($lat, $lon)
 	{
 		$this->event->latitude = $lat;
 		$this->event->longitude = $lon;
 		return $this;
 	}
 
-	public function dataType($datatype)
+	public function &geoIp($ip) {
+		$this->event->ip = $ip;
+		return $this;
+	}
+
+	public function &dataType($datatype)
 	{
 		$this->event->dataType = $datatype;
 		return $this;
@@ -148,7 +153,7 @@ class Loggr_FluentEvent
 	}
 
 	/**
-	 * Call, magic method
+	 * _call, magic method
 	 * 
 	 * Used for backwards compatibility
 	 **/
