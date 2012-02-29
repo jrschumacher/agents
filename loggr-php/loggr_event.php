@@ -9,8 +9,7 @@ class Loggr_Event
 	public $data;
 	public $value;
 	public $tags;
-	public $latitude;
-	public $longitude;
+	public $geo;
 	public $dataType = Loggr_DataType::plaintext;
 
 	public function __get($attribute) {

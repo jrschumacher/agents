@@ -37,12 +37,11 @@ class Loggr_LogClient
 		$res  =                             'apikey='  . $this->apiKey;
 		$res .=                             '&text='   . urlencode($event->text);
 		$res .= isset($event->source)    ?  '&source=' . urlencode($event->source) : '';
-		$res .= isset($event->user)      ?  '&user='   . urlencode($event->user) : '';
-		$res .= isset($event->link)      ?  '&link='   . urlencode($event->link) : '';
-		$res .= isset($event->value)     ?  '&value='  . urlencode($event->value) : '';
-		$res .= isset($event->tags)      ?  '&tags='   . urlencode($event->Tags) : '';
-		$res .= isset($event->latitude)  ?  '&lat='    . urlencode($event->latitude) : '';
-		$res .= isset($event->longitude) ?  '&lon='    . urlencode($event->longitude) : '';
+		$res .= isset($event->user)      ?  '&user='   . urlencode($event->user)   : '';
+		$res .= isset($event->link)      ?  '&link='   . urlencode($event->link)   : '';
+		$res .= isset($event->value)     ?  '&value='  . urlencode($event->value)  : '';
+		$res .= isset($event->tags)      ?  '&tags='   . urlencode($event->tags)   : '';
+		$res .= isset($event->geo)       ?  '&geo='    . urlencode($event->geo)    : '';
 		
 		if (isset($event->data))
 		{

@@ -21,7 +21,7 @@
 	$world = "World";
 	$loggr->Events->Create()
 		->TextF("hello%s", $world)
-		->Tags("tag1 tag2 tag3")
+		->Tags(array('tag1', 'tag2', 'tag3'))
 		->Link("http://google.com")
 		->Source("dave")
 		->Data("foobar")
